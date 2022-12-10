@@ -1,30 +1,44 @@
 import pandas as pd
+import numpy as np
+from surprise import Dataset
+from surprise import Reader
+from surprise import KNNWithMeans
+#from load_data import data
+from recommenders import algo
 
 
-
-# Visualizations from 3. on
-
-import matplotlib
-import matplotlib.pyplot as plt
-#matplotlib.style.use(matplotlib.get_data_path() + '\stylelib\APA.mplstyle')  # selecting
-# the style sheet
-
-# Collaborative filtering
-
-# Memory based
-
-# The first category includes algorithms that are memory based, in which statistical
-# techniques are applied to the entire dataset to calculate the predictions.
-# To find the rating R that a user U would give to an item I, the approach includes:
-# - Finding users similar to U who have rated the item I
-# - Calculating the rating R based the ratings of users found in the previous step
-
-
-# Call the file
-
+# Load the data
+# movies = pd.read_csv("ml-latest-small/movies.csv")
 ratings = pd.read_csv("ml-latest-small/ratings.csv")
-print(ratings.describe())
 
 
-# How to Find Similar Users on the Basis of Ratings?
+# We are using the ratings.csv
+# Modify rating timestamp format (from seconds to datetime year)
+ratings.timestamp = pd.to_datetime(ratings.timestamp, unit='s')
+ratings.timestamp = pd.to_datetime(ratings.timestamp, infer_datetime_format=True)
+ratings.timestamp = ratings.timestamp.dt.year
+#print(ratings.head(50))
 
+# specify the rating scale. The default is (1, 5)
+reader = Reader(rating_scale=(1, 5))
+
+
+## Algorithms Based on K-Nearest Neighbours (k-NN)
+# To use item-based cosine similarity
+sim_options = {
+    "name": "cosine",
+    "user_based": False,  # Compute  similarities between items
+}
+algo = KNNWithMeans(sim_options=sim_options)
+
+print(f"Number of users: {ratings['userId'].nunique()}")
+
+#  to find out how the user E would rate the movie 2:
+
+trainingSet = ratings.build_full_trainset()
+
+algo.fit(trainingSet)
+
+pip install --upgrade setuptools lightfm
+
+pip install --upgrade setuptools wheel
