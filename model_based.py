@@ -39,6 +39,6 @@ trainingSet = ratings.build_full_trainset()
 
 algo.fit(trainingSet)
 
-pip install --upgrade setuptools lightfm
+#pip install --upgrade setuptools lightfm
 
-pip install --upgrade setuptools wheel
+#pip install --upgrade setuptools wheel
