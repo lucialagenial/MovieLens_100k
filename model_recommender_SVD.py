@@ -1,26 +1,16 @@
-import numpy as np  # linear algebra
-import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
-import matplotlib.pyplot as plt
-import seaborn as sns
-import os
-import re
-
+import pandas as pd
 import warnings
-
 warnings.filterwarnings('ignore')
-
 from surprise import Reader, Dataset, SVD, SVDpp
-from surprise import accuracy
-
 from timeit import default_timer
-
 start = default_timer()
 
-# Load the data
-movies = pd.read_csv("movies.csv")
-ratings = pd.read_csv("ratings.csv")
-tags = pd.read_csv("tags.csv")
+# Singular Value Decomposition (SVD) method, model based
 
+# Load the data
+movies = pd.read_csv("ml-latest-small/movies.csv")
+ratings = pd.read_csv("ml-latest-small/ratings.csv")
+tags = pd.read_csv("ml-latest-small/tags.csv")
 
 # Modify rating timestamp format (from seconds to datetime year)
 st = default_timer()
@@ -85,8 +75,10 @@ def TopNRecs_SVD(user_id, num_recommender=10, latest=False):
         intMovieID = int(movieID)
         recommendation.append((intMovieID, estimatedRating))
 
-    recommendation.sort(key=lambda x: x[1], reverse=True)
-
+    recommendation.sort(key=lambda x: x[0], reverse=True)  # here is the issue x[1] originally
+    # For further info trying to fix this error:
+    # https://stackoverflow.com/questions/8966538/syntax-behind-sortedkey-lambda/
+    # 42966511#42966511?newreg=efc951fd9eec4b3da42fa8d5a6afdc98
     movie_names = []
     movie_ratings = []
 
@@ -98,7 +90,7 @@ def TopNRecs_SVD(user_id, num_recommender=10, latest=False):
                                     'rating': movie_ratings}).merge(movie_data[['title', 'timestamp']],
                                                                     on='title', how='left')
 
-    if latest == True:
+    if latest:
         return movie_dataframe.sort_values('timestamp', ascending=False)[['title', 'rating']].head(
             num_recommender)
 
@@ -108,6 +100,55 @@ def TopNRecs_SVD(user_id, num_recommender=10, latest=False):
 
 user_2 = Build_Anti_Testset4User(2)
 
+print(TopNRecs_SVD(2, num_recommender=10))
+# Somehow it's working but not really
+
+# Model evaluation
+
+# Than predict ratings for all pairs (u, i) that are NOT in the training set.
+testset = trainset.build_anti_testset()
+
+predictions_svd = svd.test(testset)
 
 
-print(TopNRecs_SVD(1920, num_recommender=10))
+# These next two lines are commented out due to the time it takes to rerun everything
+
+#print('SVD - RMSE:', accuracy.rmse(predictions_svd, verbose=False))
+#print('SVD - MAE:', accuracy.mae(predictions_svd, verbose=False))
+# Remember in recommendation, the most important is Top-N recommendation (list of product to recommend), not RMSE or MAE
+
+
+# Function to give a recommendation to all users
+
+from collections import defaultdict
+
+def GetTopN(predictions, n=10, minimumRating=4.0):
+        topN = defaultdict(list)
+
+        for userID, movieID, actualRating, estimatedRating, _ in predictions:
+            if (estimatedRating >= minimumRating):
+                topN[int(userID)].append((int(movieID), estimatedRating))
+
+        for userID, ratings in topN.items():
+            ratings.sort(key=lambda x: x[1], reverse=True) # here the same issue
+            topN[int(userID)] = ratings[:n]
+
+        return topN
+
+
+top_n = GetTopN(predictions_svd, n=10)
+
+ii = 0
+for uid, predict_ratings in top_n.items():
+    print(uid, [iid for (iid, _) in predict_ratings])
+    ii += 1
+
+    if ii > 5:
+        break
+
+
+# Recommendation System take us out from the age of information and bring us in to the age of recommendation
+
+
+# References: https://www.kaggle.com/code/indralin/movielens-project-1-2-collaborative-filtering/
+# notebook#Support-Vector-Decomposition-(SVD)

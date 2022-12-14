@@ -5,6 +5,7 @@ warnings.filterwarnings('ignore')
 from surprise import Reader, Dataset, SVD, SVDpp
 from surprise import accuracy
 
+# Content based correlation recommendation system.
 
 # Load the data
 movies = pd.read_csv("ml-latest-small/movies.csv")
@@ -54,3 +55,5 @@ print(f"Top 5 recommended movies: {recc.head(5)}")
 # We learn that:
 # 1. What is a recommender system?
 # 2. Implementation of recommended system in python.
+
+# Source: https://www.codespeedy.com/build-recommender-systems-with-movielens-dataset-in-python/
