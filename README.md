@@ -48,6 +48,8 @@ We have tried the following approaches:
   
 - Model based collaborative filtering with Singular Value Decomposition (SVD) calculated manually. See file: manual_SVD.py.
 
+- Movie Recommendation based on K-Nearest-Neighbors (KNN) according to genres and popularity 
+
 
 
 

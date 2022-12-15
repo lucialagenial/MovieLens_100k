@@ -1,9 +1,13 @@
 import pandas as pd
 import warnings
+
 warnings.filterwarnings('ignore')
 from surprise import Reader, Dataset, SVD, SVDpp
 from timeit import default_timer
+
 start = default_timer()
+from surprise import Reader, Dataset, SVD, SVDpp
+from surprise import accuracy
 
 # Singular Value Decomposition (SVD) method, model based
 
@@ -110,11 +114,10 @@ testset = trainset.build_anti_testset()
 
 predictions_svd = svd.test(testset)
 
-
 # These next two lines are commented out due to the time it takes to rerun everything
 
-#print('SVD - RMSE:', accuracy.rmse(predictions_svd, verbose=False))
-#print('SVD - MAE:', accuracy.mae(predictions_svd, verbose=False))
+print('SVD - RMSE:', accuracy.rmse(predictions_svd, verbose=False))
+print('SVD - MAE:', accuracy.mae(predictions_svd, verbose=False))
 # Remember in recommendation, the most important is Top-N recommendation (list of product to recommend), not RMSE or MAE
 
 
@@ -122,18 +125,19 @@ predictions_svd = svd.test(testset)
 
 from collections import defaultdict
 
+
 def GetTopN(predictions, n=10, minimumRating=4.0):
-        topN = defaultdict(list)
+    topN = defaultdict(list)
 
-        for userID, movieID, actualRating, estimatedRating, _ in predictions:
-            if (estimatedRating >= minimumRating):
-                topN[int(userID)].append((int(movieID), estimatedRating))
+    for userID, movieID, actualRating, estimatedRating, _ in predictions:
+        if (estimatedRating >= minimumRating):
+            topN[int(userID)].append((int(movieID), estimatedRating))
 
-        for userID, ratings in topN.items():
-            ratings.sort(key=lambda x: x[1], reverse=True) # here the same issue
-            topN[int(userID)] = ratings[:n]
+    for userID, ratings in topN.items():
+        ratings.sort(key=lambda x: x[1], reverse=True)  # here the same issue
+        topN[int(userID)] = ratings[:n]
 
-        return topN
+    return topN
 
 
 top_n = GetTopN(predictions_svd, n=10)
@@ -146,9 +150,8 @@ for uid, predict_ratings in top_n.items():
     if ii > 5:
         break
 
-
 # Recommendation System take us out from the age of information and bring us in to the age of recommendation
 
 
-# References: https://www.kaggle.com/code/indralin/movielens-project-1-2-collaborative-filtering/
-# notebook#Support-Vector-Decomposition-(SVD)
+# References: https://www.kaggle.com/code/indralin/movielens-project-1-2-collaborative-filtering/notebook#Support-
+# Vector-Decomposition-(SVD)

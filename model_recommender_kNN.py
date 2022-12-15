@@ -31,23 +31,23 @@ print(movieNormalizedNumRatings.head())
 # contain the movie name, list of genre values, the normalized popularity score, and the average rating for each movie:
 
 movieDict = {}
-with open(r'ml-latest-small/movies.csv', encoding="ISO-8859-1") as f:
-    temp = ''
-    for line in f:
-        #line.encode().decode("ISO-8859-1")
-        fields = line.rstrip('\n').split('|')
-        movieID = int()
-        name = fields[1]
-        genres = fields[5:25]
-        genres = map(int, genres)
-        movieDict[movieID] = (name, np.array(list(genres)), movieNormalizedNumRatings.loc[movieID].get('size'),
-                              movieProperties.loc[movieID].rating.get('mean'))
+
+#with open(r'ml-latest-small/movies.csv', encoding="ISO-8859-1") as f:
+temp = ''
+for line in movies:
+    line.encode().decode("ISO-8859-1")
+    fields = line.rstrip('\n').split('|')
+    print(fields)
+    movieID = fields[0]
+    name = fields[1]
+    genres = fields[2]
+    genres = map(int, genres)
+    movieDict[movieID] = (name, np.array(list(genres)), movieNormalizedNumRatings.loc[movieID].get('size'),
+                          movieProperties.loc[movieID].rating.get('mean'))
+
+
 
 
 # For example, here's the record we end up with for movie ID 1, "Toy Story":)
 
-print(movieDict[1])
-
-
-
-# Source: https://hendra-herviawan.github.io/Movie-Recommendation-based-on-KNN-K-Nearest-Neighbors.html
+#print(movieDict[1])
